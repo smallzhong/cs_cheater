@@ -7,6 +7,10 @@
 
 using namespace std;
 
+#pragma warning(disable : 4996)
+#pragma warning(disable : 6031) // 忽略警告"返回值被忽略: “getchar”"
+
+
 // 不能用库函数
 #define TOUPPER(x) ((((x) >= 'a') && ((x) <= 'z')) ? ((x)-32) : (x))
 #define TOLOWER(x) ((((x) >= 'A') && ((x) <= 'Z')) ? ((x) + 32) : (x))
