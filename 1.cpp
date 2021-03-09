@@ -2,7 +2,10 @@
 
 DWORD g_pid = NULL;
 PVOID g_server_css_base = NULL;
+PVOID g_client_base = NULL;
 HANDLE g_hprocess = NULL;
+DWORD g_onehundred = 100;
+BOOL g_firstflag = TRUE;
 
 VOID getProcessPID()
 {
@@ -53,16 +56,21 @@ int main()
 
 		if (!wcscmp(mi.szModule, TEXT("server_css.dll")))
 		{
-			printf("成功找到模块server_css.dll，基址为0x%x，大小为0x%x\r\n", mi.modBaseAddr, (DWORD)mi.modBaseSize);
+			printf("成功找到模块server_css.dll，基址为0x%p，大小为0x%x\r\n", mi.modBaseAddr, (DWORD)mi.modBaseSize);
 			g_server_css_base = mi.modBaseAddr;
-			break;
+		}
+
+		if (!wcscmp(mi.szModule, TEXT("client.dll")))
+		{
+			printf("成功找到模块client.dll，基址为0x%p，大小为0x%x\r\n", mi.modBaseAddr, (DWORD)mi.modBaseSize);
+			g_client_base = mi.modBaseAddr;
 		}
 
 		bRet = Module32Next(hSnapshot, &mi);
 	}
 
-	if (g_server_css_base == NULL)
-		EXIT_ERROR("没有找到server_css.dll模块！\r\n");
+	if (g_server_css_base == NULL || g_client_base == NULL)
+		EXIT_ERROR("没有找到server_css.dll模块或没有找打client模块！\r\n");
 
 
 	while (1)
@@ -73,21 +81,31 @@ int main()
 
 		//  + 0x9c
 		PVOID ptraddr = (PVOID)((PCHAR)g_server_css_base + 0x3B5D18);
-		printf("基址 = 0x%x\r\n", ptraddr);
+		if (g_firstflag)
+			printf("存血量结构体指针基址 = 0x%x\r\n", ptraddr);
 
 		ReadProcessMemory(g_hprocess, ptraddr, &buffer, 4, &dwread);
-		printf("存血量结构体地址：0x%x\r\n", buffer);
-
+		if (g_firstflag)
+		{
+			printf("存血量结构体地址：0x%x\r\n", buffer);
+			g_firstflag = FALSE;
+		}
 		DWORD blood = -1;
 		ReadProcessMemory(g_hprocess, (PVOID)((PCHAR)buffer + 0x9c), &blood, 4, &dwread);
-		printf("当前血量%d\r\n", blood);
-
-		DWORD onehundred = 100;
-		WriteProcessMemory(g_hprocess, (PVOID)((PCHAR)buffer + 0x9c), &onehundred, 4, &dwwritten);
+		if (blood != 100)
+		{
+			printf("当前血量%d\r\n", blood);
+			WriteProcessMemory(g_hprocess, (PVOID)((PCHAR)buffer + 0x9c), &g_onehundred, 4, &dwwritten);
+			printf("\t血量恢复！\r\n");
+		}
+		else
+		{
+			WriteProcessMemory(g_hprocess, (PVOID)((PCHAR)buffer + 0x9c), &g_onehundred, 4, &dwwritten);
+		}
 		//WriteProcessMemory(g_hprocess, (PVOID)((PCHAR)g_server_css_base + 0x3B5D18 + 0x9c), &onehundred, 4, &dwwritten);
 		//printf("%d字节写入成功！\r\n", dwwritten);
 
-		Sleep(1000);
+		Sleep(2);
 	}
 
 	return 0;
