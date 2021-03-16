@@ -73,7 +73,7 @@
   ```cpp
   for (int i = 0; i < enemy_count; i ++ )
   {
-      PVOID ptraddr = (PVOID)((PCHAR)g_server_css_base + 0x3D24E4 + i * 0x10);
+  	PVOID ptraddr = (PVOID)((PCHAR)g_server_css_base + 0x3D24E4 + i * 0x10);
   	ReadProcessMemory(g_hprocess, ptraddr, &buffer, 4, &dwread);
   }
   ```
