@@ -11,7 +11,7 @@
 ## 使用效果
 
 + ![image-20210316134928788](https://cdn.jsdelivr.net/gh/smallzhong/picgo-pic-bed/image-20210316134928788.png)
-+ ![image-20210316134942531](C:\Users\雨初\AppData\Roaming\Typora\typora-user-images\image-20210316134942531.png)
++ ![image-20210316140044616](https://cdn.jsdelivr.net/gh/smallzhong/picgo-pic-bed/image-20210316140044616.png)
 
 
 
