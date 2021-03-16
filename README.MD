@@ -1,14 +1,22 @@
 # CS辅助
 
-- [x] 锁血
-- [x] 飞天遁地
-- [x] 方框透
-- [ ] 无限手雷
-- [ ] iathook加速
++ 考虑到国内使用github下载比较缓慢，如果git clone无法成功下载代码的可以通过百度网盘下载本项目中的代码。
 
+  链接：https://pan.baidu.com/s/1hrJ0rg9rrowfpAE8Zi3Hog 
+  提取码：1111 
 
++ 另附本项目配套使用的cs游戏版本
+
+  链接：https://pan.baidu.com/s/1lC8WfNqU6lVZ6yupNXXjFw 
+  提取码：1111 
 
 ## 使用效果
+
++ [x] 锁血
++ [x] 飞天遁地
++ [x] 方框透
++ [ ] 无限手雷
++ [ ] iathook加速
 
 + ![image-20210316134928788](https://cdn.jsdelivr.net/gh/smallzhong/picgo-pic-bed/image-20210316134928788.png)
 + ![image-20210316140044616](https://cdn.jsdelivr.net/gh/smallzhong/picgo-pic-bed/image-20210316140044616.png)
@@ -17,19 +25,10 @@
 
 ## 注意事项
 
-+ 配套的cs起源
-
-  链接：https://pan.baidu.com/s/1lC8WfNqU6lVZ6yupNXXjFw 
-  提取码：1111 
-
 + 本项目是cs起源的一个外挂程序，实现了锁血、方框透视的功能。由于我下载的这个cs不是官方版本，所以其各种数据的基址可能和其他版本不太一样。如果想要使用这个外挂请下载我使用的cs。
-
 + 锁血实现的方法是不断往存自己血量的位置写入一个很大的数字，以达到血量不减少的目的。血量基址见readme后附基址。
-
 + 飞天遁地实现的方法是通过强制修改z轴坐标让人物位置改变。人物xyz轴坐标基址见readme后附基址。
-
 + 方框透视是计算出在屏幕上显示的位置后通过rectangle函数画出矩形。这里使用了透明窗口，不会闪烁。
-
 + 我尝试通过iathook进行加速，但是总是hook不上getticicount、timegettime、query什么的那个函数，但是hook `Messagebox` 又能正确hook，挺迷惑的。我的做法是远程线程注入然后通过 `dll` 进行 `iathook` ，dll的代码放在 `dll2` 目录下。这个功能做了一天半还是没做出来，不知道问题在哪，搁置了，以后再做。
 
 ## 基址
