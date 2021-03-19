@@ -200,7 +200,7 @@ DWORD WINAPI Thread_enemy(LPVOID lpParameter)
 			/* 过滤掉这个之后只有恐怖分子会显示
 			ReadProcessMemory(g_hprocess, buffer + 0x192 * 4, &t, 4, &dwread);
 			if (t != 40) continue;*/
-			
+
 			/*system("cls");
 				ReadProcessMemory(g_hprocess, buffer + 0x26 * 4, &t, 4, &dwread);
 				printf("t == %d, i = 0x%x\r\n", t, 0x26);
@@ -215,7 +215,7 @@ DWORD WINAPI Thread_enemy(LPVOID lpParameter)
 				printf("t == %d, i = 0x%x\r\n", t, 0x2ed);*/
 
 
-			// 设置敌人位置
+				// 设置敌人位置
 			FLOAT x = 0, y = 0, z = 0;
 			DWORD blood = 0;
 			ReadProcessMemory(g_hprocess, (PVOID)((PCHAR)buffer + 0x2c4 - 8), &x, 4, &dwread);
@@ -240,8 +240,18 @@ DWORD WINAPI Thread_enemy(LPVOID lpParameter)
 
 
 
-VOID ShowPaint(stPlayerInfo stMe, stPlayerInfo stTarget, HDC hDc, DWORD dwWindwMetricsX, DWORD dwWindwMetricsY)
+VOID ShowPaint(stPlayerInfo stMe, stPlayerInfo stTarget, HDC hDc, DWORD dwWindwMetricsX, DWORD dwWindwMetricsY, DWORD ct)
 {
+	HPEN hPen = NULL;
+	if (!ct)
+	{
+		
+		hPen = CreatePen(PS_SOLID, 1, RGB(0, 245, 255));
+		SelectObject(hDc, hPen);
+		Ellipse(hDc, dwWindwMetricsX / 2 - 15, dwWindwMetricsY / 2 - 20, dwWindwMetricsX / 2 + 15, dwWindwMetricsY / 2 + 15);
+
+	}
+	if (stTarget.dwCT == 3) return;
 	if (stTarget.dwHp == 1) return;
 	if (stTarget.x == 0 && stTarget.y == 0) return;
 	//if (stTarget.dwState) return;
@@ -369,7 +379,7 @@ VOID ShowPaint(stPlayerInfo stMe, stPlayerInfo stTarget, HDC hDc, DWORD dwWindwM
 		memset(wBuffer, 0, 40);
 		swprintf_s(wBuffer, L"HP:%03d", stTarget.dwHp);
 		//显示血量
-		HPEN hPen = NULL;
+		
 		HBRUSH hBrush;
 		//显示阵营
 		if (stTarget.dwCT == 3)
@@ -384,52 +394,56 @@ VOID ShowPaint(stPlayerInfo stMe, stPlayerInfo stTarget, HDC hDc, DWORD dwWindwM
 		SelectObject(hDc, hPen);
 		//printf("left_x = %d, left_y = %d right_x = %d, right_y = %d\r\n", dwLift_x, dwLeft_y, dwRight_x, dwRight_y);
 		Rectangle(hDc, dwLift_x, dwLeft_y, dwRight_x, dwRight_y);
+		hPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 0));
+
+		/*SelectObject(hDc, hPen);*/
+
 		DeleteObject(hPen);
 #if 1
-		 //显示血条-血条颜色设置
-		 if (stTarget.dwState == 50)
-		 {
-		 	SetTextColor(hDc, RGB(105, 105, 105));
-		 	hPen = CreatePen(PS_SOLID, 1, RGB(105, 105, 105));
-		 	hBrush = (HBRUSH)CreateSolidBrush(RGB(105, 105, 105));
-		 }
-		 else if (stTarget.dwHp >= 80)
-		 {
-		 	SetTextColor(hDc, RGB(0, 255, 0));
-		 	hPen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
-		 	hBrush = (HBRUSH)CreateSolidBrush(RGB(0, 255, 0));
-		 }
-		 else if (stTarget.dwHp >= 60)
-		 {
-		 	SetTextColor(hDc, RGB(255, 255, 0));
-		 	hPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 0));
-		 	hBrush = (HBRUSH)CreateSolidBrush(RGB(255, 255, 0));
-		 }
-		 else if (stTarget.dwHp >= 40)
-		 {
-		 	SetTextColor(hDc, RGB(255, 97, 0));
-		 	hPen = CreatePen(PS_SOLID, 1, RGB(255, 97, 0));
-		 	hBrush = (HBRUSH)CreateSolidBrush(RGB(255, 97, 0));
-		 }
-		 else
-		 {
-		 	SetTextColor(hDc, RGB(255, 0, 0));
-		 	hPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
-		 	hBrush = (HBRUSH)CreateSolidBrush(RGB(255, 0, 0));
-		 }
-		 TextOutW(hDc, dwRight_x, dwRight_y, wBuffer, 6);
+		//显示血条-血条颜色设置
+		if (stTarget.dwState == 50)
+		{
+			SetTextColor(hDc, RGB(105, 105, 105));
+			hPen = CreatePen(PS_SOLID, 1, RGB(105, 105, 105));
+			hBrush = (HBRUSH)CreateSolidBrush(RGB(105, 105, 105));
+		}
+		else if (stTarget.dwHp >= 80)
+		{
+			SetTextColor(hDc, RGB(0, 255, 0));
+			hPen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
+			hBrush = (HBRUSH)CreateSolidBrush(RGB(0, 255, 0));
+		}
+		else if (stTarget.dwHp >= 60)
+		{
+			SetTextColor(hDc, RGB(255, 255, 0));
+			hPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 0));
+			hBrush = (HBRUSH)CreateSolidBrush(RGB(255, 255, 0));
+		}
+		else if (stTarget.dwHp >= 40)
+		{
+			SetTextColor(hDc, RGB(255, 97, 0));
+			hPen = CreatePen(PS_SOLID, 1, RGB(255, 97, 0));
+			hBrush = (HBRUSH)CreateSolidBrush(RGB(255, 97, 0));
+		}
+		else
+		{
+			SetTextColor(hDc, RGB(255, 0, 0));
+			hPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
+			hBrush = (HBRUSH)CreateSolidBrush(RGB(255, 0, 0));
+		}
+		TextOutW(hDc, dwRight_x, dwRight_y, wBuffer, 6);
 
-		 SelectObject(hDc, hPen);
-		 Rectangle(hDc, dwLift_x, dwRight_y + 6, dwRight_x, dwRight_y);
-		 DeleteObject(hPen);
+		SelectObject(hDc, hPen);
+		Rectangle(hDc, dwLift_x, dwRight_y + 6, dwRight_x, dwRight_y);
+		DeleteObject(hPen);
 
-		 HBRUSH hOldBrush = (HBRUSH)SelectObject(hDc, hBrush);
+		HBRUSH hOldBrush = (HBRUSH)SelectObject(hDc, hBrush);
 
-		 Rectangle(hDc, dwLift_x, dwRight_y + 6, dwLift_x + (dwRight_x - dwLift_x) * stTarget.dwHp / 100, dwRight_y);
-		 SelectObject(hDc, hOldBrush);
-		 DeleteObject(hOldBrush);
-		 DeleteObject(hBrush);
-		 //Rectangle(hDc, 0, 0, dwWindwMetricsX, dwWindwMetricsY);
+		Rectangle(hDc, dwLift_x, dwRight_y + 6, dwLift_x + (dwRight_x - dwLift_x) * stTarget.dwHp / 100, dwRight_y);
+		SelectObject(hDc, hOldBrush);
+		DeleteObject(hOldBrush);
+		DeleteObject(hBrush);
+		//Rectangle(hDc, 0, 0, dwWindwMetricsX, dwWindwMetricsY);
 #endif
 	}
 }
@@ -439,6 +453,7 @@ LRESULT CALLBACK MyWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam
 {
 	HDC hDc = NULL;
 	MARGINS margin;
+	HPEN hPen = NULL;
 	RECT a = { 0, 50, 50, 0 };
 	HBRUSH hbrush = CreateSolidBrush(RGB(0, 0, 0));
 	switch (uMsg)
@@ -452,8 +467,11 @@ LRESULT CALLBACK MyWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam
 		if (g_x_ray_flag)
 		{
 			for (int i = 0; i < 30; i++)
-				ShowPaint(g_self_info, g_enemy_info[i], hDc, g_stKhRect.right - g_stKhRect.left, g_stKhRect.bottom - g_stKhRect.top);
+			{
+				ShowPaint(g_self_info, g_enemy_info[i], hDc, g_stKhRect.right - g_stKhRect.left, g_stKhRect.bottom - g_stKhRect.top, i);
+			}
 		}
+		 
 		//ShowPlayer(hDc, g_hprocess, g_stWindowsInfo.dwBaseAddress, g_pPlayerBuffer, g_stKhRect.right - g_stKhRect.left, g_stKhRect.bottom - g_stKhRect.top);
 		ReleaseDC(g_hWnd, hDc);
 		break;
