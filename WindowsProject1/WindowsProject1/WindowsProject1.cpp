@@ -26,7 +26,7 @@ PCHAR g_server_base = NULL;
 PCHAR g_client_base = NULL;
 PCHAR g_engine_base = NULL;
 HANDLE g_hprocess = NULL;
-DWORD g_onehundred = 1500;
+DWORD g_onehundred = 300;
 BOOL g_firstflag = TRUE;
 PVOID g_self_blood_addr = NULL;
 DWORD dwwritten = 0;
@@ -107,6 +107,7 @@ DWORD WINAPI Thread_get_self_info(LPVOID lpParameter)
 	DWORD t = -1;
 	ReadProcessMemory(g_hprocess, (PVOID)((PCHAR)buffer + 0x8b * 4), &t, 4, &dwread);
 	printf("自己阵营%d\r\n", t);
+	g_self_info.dwCT = t;
 
 	while (1)
 	{
@@ -243,15 +244,7 @@ DWORD WINAPI Thread_enemy(LPVOID lpParameter)
 VOID ShowPaint(stPlayerInfo stMe, stPlayerInfo stTarget, HDC hDc, DWORD dwWindwMetricsX, DWORD dwWindwMetricsY, DWORD ct)
 {
 	HPEN hPen = NULL;
-	if (!ct)
-	{
-		
-		hPen = CreatePen(PS_SOLID, 1, RGB(0, 245, 255));
-		SelectObject(hDc, hPen);
-		Ellipse(hDc, dwWindwMetricsX / 2 - 15, dwWindwMetricsY / 2 - 20, dwWindwMetricsX / 2 + 15, dwWindwMetricsY / 2 + 15);
-
-	}
-	if (stTarget.dwCT == 3) return;
+	if (stTarget.dwCT == stMe.dwCT) return;
 	if (stTarget.dwHp == 1) return;
 	if (stTarget.x == 0 && stTarget.y == 0) return;
 	//if (stTarget.dwState) return;
@@ -379,7 +372,7 @@ VOID ShowPaint(stPlayerInfo stMe, stPlayerInfo stTarget, HDC hDc, DWORD dwWindwM
 		memset(wBuffer, 0, 40);
 		swprintf_s(wBuffer, L"HP:%03d", stTarget.dwHp);
 		//显示血量
-		
+
 		HBRUSH hBrush;
 		//显示阵营
 		if (stTarget.dwCT == 3)
@@ -459,22 +452,30 @@ LRESULT CALLBACK MyWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam
 	switch (uMsg)
 	{
 	case WM_PAINT:
-
-		//绘制目标人物
-		hDc = GetDC(g_hWnd);
-		// TODO:
-		//Rectangle(hDc, 0, 0, 820, 50);
 		if (g_x_ray_flag)
 		{
+			//绘制目标人物
+			hDc = GetDC(g_hWnd);
+			// TODO:
+			//Rectangle(hDc, 0, 0, 820, 50);
 			for (int i = 0; i < 30; i++)
 			{
+				if (!i)
+				{
+					DWORD dwWindwMetricsX = g_stKhRect.right - g_stKhRect.left;
+					DWORD dwWindwMetricsY = g_stKhRect.bottom - g_stKhRect.top;
+					/*	HPEN hPen = NULL;
+						hPen = CreatePen(PS_SOLID, 1, RGB(0, 245, 255));
+						SelectObject(hDc, hPen);
+						Ellipse(hDc, dwWindwMetricsX / 2 - 35, dwWindwMetricsY / 2 - 40, dwWindwMetricsX / 2 + 35, dwWindwMetricsY / 2 + 35);*/
+				}
 				ShowPaint(g_self_info, g_enemy_info[i], hDc, g_stKhRect.right - g_stKhRect.left, g_stKhRect.bottom - g_stKhRect.top, i);
 			}
+			//ShowPlayer(hDc, g_hprocess, g_stWindowsInfo.dwBaseAddress, g_pPlayerBuffer, g_stKhRect.right - g_stKhRect.left, g_stKhRect.bottom - g_stKhRect.top);
+			ReleaseDC(g_hWnd, hDc);
 		}
-		 
-		//ShowPlayer(hDc, g_hprocess, g_stWindowsInfo.dwBaseAddress, g_pPlayerBuffer, g_stKhRect.right - g_stKhRect.left, g_stKhRect.bottom - g_stKhRect.top);
-		ReleaseDC(g_hWnd, hDc);
 		break;
+
 	case WM_CREATE:
 		//区域拓展  
 		margin = { g_stKhRect.left, g_stKhRect.top, g_stKhRect.right, g_stKhRect.bottom };
